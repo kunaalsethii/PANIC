@@ -1,2 +1,273 @@
-# PANIC
-PANIC GAME
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P A N I C - Player Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">P A N I C</div>
+      <div class="subtitle">Player Dashboard</div>
+    </header>
+
+    <section id="setupScreen" class="screen">
+      <div class="card">
+        <div class="card-title">Setup</div>
+        <div class="field">
+          <label class="label" for="playerNameInput">Player Name</label>
+          <input id="playerNameInput" class="input" type="text" placeholder="Enter your name" />
+        </div>
+        <button id="rollRoleBtn" class="btn btn-primary">Roll Role ??</button>
+        <div class="role-preview" id="rolePreview">
+          <div class="role-name">No role rolled yet</div>
+          <div class="role-ability">
+            <div class="ability-label">Passive</div>
+            <div class="ability-text" id="setupPassive">-</div>
+          </div>
+          <div class="role-ability">
+            <div class="ability-label">Active</div>
+            <div class="ability-text" id="setupActive">-</div>
+          </div>
+          <div class="role-ability">
+            <div class="ability-label">Special</div>
+            <div class="ability-text" id="setupSpecial">-</div>
+          </div>
+        </div>
+        <button id="startGameBtn" class="btn btn-secondary">Start Game</button>
+        <div id="setupMessage" class="helper"></div>
+      </div>
+    </section>
+
+    <section id="dashboardScreen" class="screen hidden">
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Basic Stats</div>
+          <div class="stat-row">
+            <div>
+              <div class="label">Player</div>
+              <div id="playerNameDisplay" class="stat-text"></div>
+            </div>
+            <div>
+              <div class="label">Role</div>
+              <div id="roleNameDisplay" class="stat-text"></div>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat">
+              <div class="label">Troops</div>
+              <div class="counter">
+                <button class="btn btn-icon" data-stat="troops" data-delta="-1">-</button>
+                <div id="troopsValue" class="counter-value">0</div>
+                <button class="btn btn-icon" data-stat="troops" data-delta="1">+</button>
+              </div>
+            </div>
+            <div class="stat">
+              <div class="label">Points</div>
+              <div class="counter">
+                <button class="btn btn-icon" data-stat="points" data-delta="-1">-</button>
+                <div id="pointsValue" class="counter-value">0</div>
+                <button class="btn btn-icon" data-stat="points" data-delta="1">+</button>
+              </div>
+            </div>
+            <div class="stat">
+              <div class="label">Cards</div>
+              <input id="cardsInput" class="input" type="number" min="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Leader Status</div>
+          <div class="leader-row">
+            <label class="toggle">
+              <input id="leaderToggle" type="checkbox" />
+              <span class="toggle-track"></span>
+              <span id="leaderStatusText" class="toggle-text">Leader Alive</span>
+            </label>
+            <button id="respawnLeaderBtn" class="btn btn-warning">Respawn Leader (15 pts reminder)</button>
+          </div>
+          <div id="leaderWarning" class="warning hidden">Leader Down: -5 points, no abilities next turn</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Turn System</div>
+          <div class="turn-row">
+            <div class="turn-info">Actions Left: <span id="actionsLeft">4</span></div>
+            <div class="turn-buttons">
+              <button id="startTurnBtn" class="btn btn-secondary">Start Turn</button>
+              <button id="useActionBtn" class="btn btn-danger">Use Action</button>
+            </div>
+          </div>
+          <div id="turnMessage" class="helper"></div>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">Cure Tracker</div>
+          <div id="cureTracker" class="cure-grid"></div>
+          <div class="cure-controls">
+            <select id="cureSelect" class="select"></select>
+            <button id="useCardsBtn" class="btn btn-primary">Use 3 Cards ? +1 Cure</button>
+          </div>
+          <div id="cureMessage" class="helper"></div>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">Global Events</div>
+          <div class="event-row">
+            <button id="drawEventBtn" class="btn btn-primary">Draw Event ??</button>
+            <div id="eventDisplay" class="event-display">
+              <div class="event-name">No event drawn</div>
+              <div class="event-desc">Draw an event to reveal the outcome.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Role Abilities</div>
+          <div class="ability-block">
+            <div class="ability-label">Passive</div>
+            <div id="rolePassive" class="ability-text"></div>
+          </div>
+          <div class="ability-block">
+            <div class="ability-label">Active</div>
+            <div id="roleActive" class="ability-text"></div>
+          </div>
+          <div class="ability-block">
+            <div class="ability-label">Special</div>
+            <div id="roleSpecial" class="ability-text"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Active Effects</div>
+          <textarea id="activeEffects" class="textarea" rows="7" placeholder="Write buffs, penalties, temporary effects..."></textarea>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">War Powers</div>
+          <div class="war-grid">
+            <button class="btn btn-danger" data-war="airstrike">Airstrike (4 pts)</button>
+            <button class="btn btn-danger" data-war="nuke">Nuke (8 pts)</button>
+            <button class="btn btn-secondary" data-war="reinforce">Reinforce Surge (3 pts)</button>
+            <button class="btn btn-secondary" data-war="sabotage">Sabotage (3 pts)</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Virus Powers</div>
+          <ul class="list">
+            <li>Super Spread ? Infection spreads to extra territories during epidemic.</li>
+            <li>Resistance ? Infection requires extra effort to remove (stronger virus).</li>
+            <li>Chain Infection ? Outbreaks spread further than normal.</li>
+            <li>Hidden Spread ? Infection appears unexpectedly due to mutation.</li>
+          </ul>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">Shop System</div>
+          <div class="shop-grid">
+            <div>
+              <div class="shop-title">?? Earning</div>
+              <ul class="list">
+                <li>Remove 1 cube ? +1 point</li>
+                <li>Cure disease ? +6 points</li>
+                <li>Help ally cure ? +3 points</li>
+                <li>Capture territory ? +2 points</li>
+                <li>Kill zombie ? +1 point</li>
+                <li>Event reward ? +2 to +4 points</li>
+              </ul>
+            </div>
+            <div>
+              <div class="shop-title">?? Spending</div>
+              <div class="button-stack">
+                <button class="btn btn-secondary" data-shop="Buy 1 troop ? 2 points">Buy 1 troop ? 2 points</button>
+                <button class="btn btn-secondary" data-shop="Claim neutral territory ? 5 points">Claim neutral territory ? 5 points</button>
+                <button class="btn btn-secondary" data-shop="Activate advanced ability ? 3 points">Activate advanced ability ? 3 points</button>
+                <button class="btn btn-secondary" data-shop="Trigger extra event ? 4 points">Trigger extra event ? 4 points</button>
+                <button class="btn btn-secondary" data-shop="Respawn ? 10 points">Respawn ? 10 points</button>
+              </div>
+            </div>
+            <div>
+              <div class="shop-title">?? Zombie Control</div>
+              <div class="button-stack">
+                <button class="btn btn-danger" data-shop="Redirect Horde ? 3 points (choose target territory)">Redirect Horde ? 3 points (choose target territory)</button>
+                <button class="btn btn-danger" data-shop="Enhance Zombies ? 4 points (zombies become stronger)">Enhance Zombies ? 4 points (zombies become stronger)</button>
+                <button class="btn btn-danger" data-shop="Shield Territory ? 3 points (zombies ignore your territory)">Shield Territory ? 3 points (zombies ignore your territory)</button>
+              </div>
+            </div>
+          </div>
+          <div id="shopMessage" class="helper"></div>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">Rules Reference</div>
+          <details class="details" open>
+            <summary>Core Rules</summary>
+            <p>Each turn you get 4 actions.</p>
+            <p>You can move, attack, treat infection, or use abilities.</p>
+          </details>
+          <details class="details">
+            <summary>Infection</summary>
+            <p>Each territory can hold up to 3 infection cubes.</p>
+            <p>At 3 cubes ? outbreak happens.</p>
+          </details>
+          <details class="details">
+            <summary>Cure</summary>
+            <p>3 cards = 1 cure progress.</p>
+            <p>5 progress = disease cured.</p>
+          </details>
+          <details class="details">
+            <summary>Moral Decisions</summary>
+            <p>Contain ? lose troops but stop spread</p>
+            <p>Abandon ? retreat but zombies spawn</p>
+            <p>Weaponize ? create zombie zone and gain points</p>
+          </details>
+          <details class="details">
+            <summary>Regional Triggers</summary>
+            <p>Outbreak ? spreads infection</p>
+            <p>Capture ? adds contamination</p>
+            <p>Abandon ? creates zombies</p>
+          </details>
+          <details class="details">
+            <summary>World System</summary>
+            <p>Virus evolves over time.</p>
+            <p>Events affect all players.</p>
+          </details>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">Moves</div>
+          <ul class="list">
+            <li>Move troops</li>
+            <li>Attack enemy territory</li>
+            <li>Treat infection</li>
+            <li>Research cure</li>
+            <li>Use role ability</li>
+            <li>Fortify troops</li>
+            <li>Use war power</li>
+            <li>Spend points</li>
+            <li>Trade (manual between players)</li>
+          </ul>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-title">All Roles</div>
+          <div id="allRoles" class="roles-grid"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalBody" class="modal-body"></div>
+      <button id="modalClose" class="btn btn-secondary">Close</button>
+    </div>
+  </div>
+</body>
+</html>
